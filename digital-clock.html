@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Timezone Digital Clock</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .clock { margin: 20px; }
+        .timezone { margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Digital Clock - Multiple Timezones</h1>
+    <div id="clocks"></div>
+    <input type="text" id="timezone" placeholder="Enter timezone (e.g., 'America/New_York')" />
+    <button onclick="addClock()">Add Timezone</button>
+    <script>
+        const clocksDiv = document.getElementById('clocks');
+        const timezones = [];
+
+        // Function to update clocks
+        function updateClocks() {
+            clocksDiv.innerHTML = ''; // clear previous clocks
+            timezones.forEach((tz) => {
+                const now = new Date();
+                const utcOffset = now.getTimezoneOffset() * 60000;
+                const timezoneDate = new Date(now.getTime() + utcOffset + (3600000 * tz.offset));
+                const clockDiv = document.createElement('div');
+                clockDiv.classList.add('clock');
+                clockDiv.innerHTML = `<div class='timezone'>${tz.name}: ${timezoneDate.toLocaleTimeString()}</div>`;
+                const removeButton = document.createElement('button');
+                removeButton.innerText = 'Remove';
+                removeButton.onclick = () => removeClock(tz.name);
+                clockDiv.appendChild(removeButton);
+                clocksDiv.appendChild(clockDiv);
+            });
+        }
+
+        // Function to add a clock
+        function addClock() {
+            const tzInput = document.getElementById('timezone').value;
+            // Example timezone offsets, in a real app you'd look this up
+            const timezoneOffsets = {
+                'UTC': { offset: 0 },
+                'America/New_York': { offset: -5 },
+                'Europe/London': { offset: 0 },
+                'Asia/Kolkata': { offset: 5.5 },
+            }; 
+            if (timezoneOffsets[tzInput]) {
+                timezones.push({ name: tzInput, offset: timezoneOffsets[tzInput].offset });
+                updateClocks();
+            } else {
+                alert('Invalid timezone!');
+            }
+            document.getElementById('timezone').value = ''; // clear input
+        }
+
+        // Function to remove a clock
+        function removeClock(name) {
+            const index = timezones.findIndex(tz => tz.name === name);
+            if (index !== -1) {
+                timezones.splice(index, 1);
+                updateClocks();
+            }
+        }
+
+        // Update clocks every second
+        setInterval(updateClocks, 1000);
+    </script>
+</body>
+</html>
